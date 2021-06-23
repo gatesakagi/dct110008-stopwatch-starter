@@ -13,6 +13,7 @@ export class AppComponent implements OnInit {
   evenLapTimes: Array<number> = [];
   intervalTimer: any;
   isStartTimer = false;
+  isStopTimer = true;
   clickStartDisabled = false;
   clickPauseDisabled = true;
   clickStopDisabled = true;
@@ -23,6 +24,13 @@ export class AppComponent implements OnInit {
   }
 
   start() {
+    if(this.isStopTimer === true){
+      this.second = 0.0;
+      this.totalLapTimes = [];
+      this.oddLapTimes = [];
+      this.evenLapTimes = [];
+    }
+
     if(this.isStartTimer === false){
       this.intervalTimer = setInterval(() => {
         this.second += 0.1;
@@ -32,9 +40,8 @@ export class AppComponent implements OnInit {
       this.clickStopDisabled = false;
       this.clickDivideDisabled = false;
       this.isStartTimer = true;
-
+      this.isStopTimer = false;
     }
-    console.log('start');
   }
 
   pause() {
@@ -48,8 +55,9 @@ export class AppComponent implements OnInit {
 
   stop() {
     clearTimeout(this.intervalTimer);
-    this.second = 0;
+    this.second = 0.0;
     this.isStartTimer = false;
+    this.isStopTimer = true;
     this.clickPauseDisabled = true;
     this.clickStartDisabled = false;
     this.clickStopDisabled = true;
