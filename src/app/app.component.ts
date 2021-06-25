@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Subscription, timer } from 'rxjs';
 
 @Component({
   selector: 'my-app',
@@ -11,9 +12,8 @@ export class AppComponent implements OnInit {
   totalLapTimes: Array<number> = [];
   oddLapTimes: Array<number> = [];
   evenLapTimes: Array<number> = [];
-  intervalTimer: any;
-  isStartTimer = false;
-  isStopTimer = true;
+  intervalTimerSubscription$: Subscription = new Subscription;
+  isStopTimer = false;
   clickStartDisabled = false;
   clickPauseDisabled = true;
   clickStopDisabled = true;
@@ -24,29 +24,23 @@ export class AppComponent implements OnInit {
   }
 
   start() {
-    if(this.isStopTimer === true){
-      this.second = 0.0;
-      this.totalLapTimes = [];
-      this.oddLapTimes = [];
-      this.evenLapTimes = [];
-    }
+    this.second = this.isStopTimer ? 0.0 : this.second;
 
-    if(this.isStartTimer === false){
-      this.intervalTimer = setInterval(() => {
-        this.second += 0.1;
-      }, 100);
+    this.intervalTimerSubscription$ = timer(0, 100).subscribe(()=>{
+      this.second += 0.1;
+    });
+
+    if (this.intervalTimerSubscription$.closed === false){
       this.clickStartDisabled = true;
       this.clickPauseDisabled = false;
       this.clickStopDisabled = false;
       this.clickDivideDisabled = false;
-      this.isStartTimer = true;
       this.isStopTimer = false;
     }
   }
 
   pause() {
-    clearTimeout(this.intervalTimer);
-    this.isStartTimer = false;
+    this.intervalTimerSubscription$.unsubscribe();
     this.clickPauseDisabled = true;
     this.clickStartDisabled = false;
     this.clickStopDisabled = false;
@@ -54,9 +48,7 @@ export class AppComponent implements OnInit {
   }
 
   stop() {
-    clearTimeout(this.intervalTimer);
-    this.second = 0.0;
-    this.isStartTimer = false;
+    this.intervalTimerSubscription$.unsubscribe();
     this.isStopTimer = true;
     this.clickPauseDisabled = true;
     this.clickStartDisabled = false;
